@@ -50,6 +50,9 @@ Automated builds of the image are available on [Dockerhub](https://hub.docker.co
 
 ```bash
 docker pull sameersbn/skype:latest
+docker run -it --rm \
+  --volume /usr/local/bin:/target \
+  sameersbn/skype:latest install
 ```
 
 Alternatively you can build the image yourself.
@@ -58,14 +61,9 @@ Alternatively you can build the image yourself.
 git clone https://github.com/sameersbn/docker-skype.git
 cd docker-skype
 docker build --tag $USER/skype .
-```
-
-With the image locally available, install the wrapper scripts using:
-
-```bash
 docker run -it --rm \
   --volume /usr/local/bin:/target \
-  sameersbn/skype:latest install
+  $USER/skype:latest install
 ```
 
 This will install a wrapper script to launch `skype`.
