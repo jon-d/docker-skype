@@ -12,6 +12,11 @@ USER_GID=$(id -g)
 XSOCK=/tmp/.X11-unix
 XAUTH=/tmp/.docker.xauth
 
+DOWNLOAD_DIR=$(xdg-user-dir DOWNLOAD)
+if [ -z "${DOWNLOAD_DIR}" ]; then
+    DOWNLOAD_DIR="${HOME}/Downloads"
+fi;
+
 list_commands() {
   echo ""
   echo "Launch skype using:"
@@ -26,11 +31,12 @@ cleanup_stopped_skype_instances(){
   for c in $(${SUDO} docker ps -a -q)
   do
     image="$(${SUDO} docker inspect -f {{.Config.Image}} ${c})"
-    if [ "${image}" == "sameersbn/skype:latest" ]; then
+    if [ "${image}" == "sameersbn/skype:1.0.1-3" ]; then
       running=$(${SUDO} docker inspect -f {{.State.Running}} ${c})
-      if [ "${running}" != "true" ]; then
-        ${SUDO} docker rm "${c}" >/dev/null
+      if [ "${running}" = "true" ]; then
+        ${SUDO} docker stop "${c}" >/dev/null
       fi
+      ${SUDO} docker rm "${c}" >/dev/null
     fi
   done
 }
@@ -40,7 +46,7 @@ prepare_docker_env_parameters() {
   ENV_VARS+=" --env=USER_GID=${USER_GID}"
   ENV_VARS+=" --env=DISPLAY"
   ENV_VARS+=" --env=XAUTHORITY=${XAUTH}"
-  ENV_VARS+=" --env=TZ=$(cat /etc/timezone)"
+  ENV_VARS+=" --env=TZ=$(date +%Z)"
 }
 
 prepare_docker_volume_parameters() {
@@ -48,7 +54,7 @@ prepare_docker_volume_parameters() {
   xauth nlist :0 | sed -e 's/^..../ffff/' | xauth -f ${XAUTH} nmerge -
 
   VOLUMES+=" --volume=${HOME}/.Skype:/home/${SKYPE_USER}/.Skype"
-  VOLUMES+=" --volume=${HOME}/Downloads:/home/${SKYPE_USER}/Downloads"
+  VOLUMES+=" --volume=${DOWNLOAD_DIR}:/home/${SKYPE_USER}/Downloads"
   VOLUMES+=" --volume=${XSOCK}:${XSOCK}"
   VOLUMES+=" --volume=${XAUTH}:${XAUTH}"
   VOLUMES+=" --volume=/run/user/${USER_UID}/pulse:/run/pulse"
@@ -94,4 +100,4 @@ ${SUDO} docker run -d \
   ${ENV_VARS} \
   ${VIDEO_DEVICES} \
   ${VOLUMES} \
-  sameersbn/skype:latest ${prog} $@ >/dev/null
+  sameersbn/skype:1.0.1-3 ${prog} $@ >/dev/null

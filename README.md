@@ -1,6 +1,6 @@
 [![Docker Repository on Quay.io](https://quay.io/repository/sameersbn/skype/status "Docker Repository on Quay.io")](https://quay.io/repository/sameersbn/skype)
 
-# sameersbn/skype:latest
+# sameersbn/skype:1.0.1-3
 
 - [Introduction](#introduction)
   - [Contributing](#contributing)
@@ -49,7 +49,7 @@ Automated builds of the image are available on [Dockerhub](https://hub.docker.co
 > **Note**: Builds are also available on [Quay.io](https://quay.io/repository/sameersbn/skype)
 
 ```bash
-docker pull sameersbn/skype:latest
+docker pull sameersbn/skype:1.0.1-3
 docker run -it --rm \
   --volume /usr/local/bin:/target \
   sameersbn/skype:latest install
@@ -58,9 +58,7 @@ docker run -it --rm \
 Alternatively you can build the image yourself.
 
 ```bash
-git clone https://github.com/sameersbn/docker-skype.git
-cd docker-skype
-docker build --tag $USER/skype .
+docker build -t sameersbn/skype github.com/sameersbn/docker-skype
 docker run -it --rm \
   --volume /usr/local/bin:/target \
   $USER/skype:latest install
@@ -79,9 +77,9 @@ The wrapper scripts volume mount the X11 and pulseaudio sockets in the launcher 
 When the image is launched the following directories are mounted as volumes
 
  - `${HOME}/.Skype`
- - `${HOME}/Downloads`
+ - `XDG_DOWNLOAD_DIR` or if it is missing `${HOME}/Downloads`
 
-This makes sure that your profile details are stored on the host and files received via Skype are available on your host in the `Downloads` directory.
+This makes sure that your profile details are stored on the host and files received via Skype are available on your host in the appropriate download directory.
 
 ## Limitations
 
@@ -96,7 +94,7 @@ To upgrade to newer releases:
   1. Download the updated Docker image:
 
   ```bash
-  docker pull sameersbn/skype:latest
+  docker pull sameersbn/skype:1.0.1-3
   ```
 
   2. Run `install` to make sure the host scripts are updated.
@@ -104,7 +102,7 @@ To upgrade to newer releases:
   ```bash
   docker run -it --rm \
     --volume /usr/local/bin:/target \
-    sameersbn/skype:latest install
+    sameersbn/skype:1.0.1-3 install
   ```
 
 ## Uninstallation
@@ -112,7 +110,7 @@ To upgrade to newer releases:
 ```bash
 docker run -it --rm \
   --volume /usr/local/bin:/target \
-  sameersbn/skype:latest uninstall
+  sameersbn/skype:1.0.1-3 uninstall
 ```
 
 ## Shell Access
